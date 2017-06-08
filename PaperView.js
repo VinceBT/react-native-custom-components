@@ -1,6 +1,23 @@
-// @flow
-import React, { PropTypes } from 'react';
+import React  from 'react';
+import PropTypes from 'prop-types';
 import { Animated, View, Platform } from 'react-native';
+
+const shadowMap = [{
+  opacity: 0.12,
+  blur: 6,
+}, {
+  opacity: 0.16,
+  blur: 10,
+}, {
+  opacity: 0.19,
+  blur: 30,
+}, {
+  opacity: 0.25,
+  blur: 45,
+}, {
+  opacity: 0.30,
+  blur: 60,
+}];
 
 const PaperView = (props) => {
   const { style, paper = 1, ...otherProps } = props;
@@ -13,13 +30,13 @@ const PaperView = (props) => {
             elevation: paper,
           },
           ios: {
-            shadowColor: 'rgba(0, 0, 0, 0.7)',
-            shadowOffset: { width: 2, height: 2 },
-            shadowRadius: 2,
-            shadowOpacity: 1.0,
+            shadowColor: 'black',
+            shadowOffset: { width: 0, height: 0 },
+            shadowRadius: shadowMap[paper].blur,
+            shadowOpacity: shadowMap[paper].opacity,
           },
           web: {
-            boxShadow: 'rgba(0, 0, 0, 0.7) 0px 0px 6px 1px',
+            boxShadow: `rgba(0, 0, 0, ${shadowMap[paper].opacity}) 0px 0px ${shadowMap[paper].blur}px`,
           },
         }),
       }]} />

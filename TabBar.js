@@ -1,5 +1,5 @@
-// @flow
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { StyleSheet, View, ScrollView, Animated, TouchableOpacity, Easing } from 'react-native';
 
 const SCROLL_PADDING = 25;
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
 export default class TabBar extends Component {
 
   static defaultProps = {
-    height: 50,
+    height: 56,
     scrollable: false,
     tabStyle: {},
     indicatorStyle: {},
@@ -47,7 +47,6 @@ export default class TabBar extends Component {
     animationDuration: 130,
     indicatorStickTop: false,
     pressOpacity: 0.5,
-    activeColor: '#fff',
     onTabPress: () => {},
   }
 
@@ -145,6 +144,7 @@ export default class TabBar extends Component {
 
     return (
       <Animated.View
+        pointerEvents="none"
         style={[{
           position: 'absolute',
           width: widthValue,
@@ -183,7 +183,7 @@ export default class TabBar extends Component {
     const nbChildren = tabs.length;
 
     return tabs.map((element, i) => {
-      const uniformValues = generateUniformArray(nbChildren, 0);
+      const uniformValues = generateUniformArray(nbChildren, activeColor ? 0 : 0.8);
       uniformValues[i] = 1;
       const mainOpacityValue = this.indicatorAnim.interpolate({
         inputRange: generateRange(nbChildren),
@@ -203,10 +203,10 @@ export default class TabBar extends Component {
           onPress={() => this._handleTabPress(i)}>
           <Animated.View style={[styles.equalWidthTab, styles.navTab]}>
             <View style={{ position: 'relative' }}>
-              <Animated.View style={{ opacity: mainOpacityValue }}>
+              <Animated.View style={{ opacity: activeColor ? mainOpacityValue : 0 }}>
                 {React.cloneElement(element, { color: activeColor, style: { color: activeColor } })}
               </Animated.View>
-              <Animated.View style={[StyleSheet.absoluteFill, { opacity: secondOpacityValue }]}>
+              <Animated.View style={[StyleSheet.absoluteFill, { opacity: activeColor ? secondOpacityValue : mainOpacityValue }]}>
                 {element}
               </Animated.View>
             </View>
