@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, View, ScrollView, Animated, TouchableOpacity, Easing } from 'react-native';
+import { Animated, Easing, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 const SCROLL_PADDING = 25;
 const SCROLL_DISPLACE = 70;
@@ -47,8 +47,9 @@ export default class TabBar extends Component {
     animationDuration: 130,
     indicatorStickTop: false,
     pressOpacity: 0.5,
-    onTabPress: () => {},
-  }
+    onTabPress: () => {
+    },
+  };
 
   static propTypes = {
     height: PropTypes.number,
@@ -66,7 +67,7 @@ export default class TabBar extends Component {
     style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   };
 
-  constructor(props: Object) {
+  constructor(props) {
     super(props);
     this.animateSelf = (props.animatedValue == null);
     this.indicatorAnim = this.animateSelf ? new Animated.Value(0) : props.animatedValue;
@@ -76,16 +77,16 @@ export default class TabBar extends Component {
   }
 
   // Preferences
-  navView: Object;
+  navView;
 
   // Properties
-  animateSelf: boolean;
-  indicatorAnim: Animated.Value;
-  scrollAnim: Animated.Value;
-  navLayout: Object;
-  tabLayouts: Array<Object>;
+  animateSelf;
+  indicatorAnim;
+  scrollAnim;
+  navLayout;
+  tabLayouts;
 
-  scrollTo(i: number) {
+  scrollTo = (i) => {
     if (!this.props.scrollable) return;
     if (i < 0) i = 0;
     if (i > this.tabLayouts.length) i = this.tabLayouts.length;
@@ -94,18 +95,17 @@ export default class TabBar extends Component {
     const tabWidth = this.tabLayouts[i].width;
     const navWidth = this.navLayout.width;
     const scrollOffset = this.scrollAnim._value;
-    if (offsetLeft < scrollOffset) {
+    if (offsetLeft < scrollOffset)
       this._scrollNav(offsetLeft - SCROLL_DISPLACE);
-    } else if (offsetRight > scrollOffset + navWidth) {
+    else if (offsetRight > scrollOffset + navWidth)
       this._scrollNav(offsetLeft + tabWidth - navWidth + SCROLL_DISPLACE);
-    }
   }
 
-  _scrollNav = (offsetX: number) => {
+  _scrollNav = (offsetX) => {
     this.navView.scrollTo({ x: offsetX, animated: true });
   };
 
-  _handleTabPress = (i: number) => {
+  _handleTabPress = (i) => {
     this.props.onTabPress(i);
     this.scrollTo(i);
     if (this.animateSelf) {
@@ -121,27 +121,35 @@ export default class TabBar extends Component {
     }
   };
 
+  _handleNavLayout = (event) => {
+    this.navLayout = event.nativeEvent.layout;
+  };
+
+  _handleNavScroll = (event) => {
+    this.scrollAnim.setValue(event.nativeEvent.contentOffset.x);
+  };
+
+  _handleTabLayout = (event, tabIndex) => {
+    this.tabLayouts[tabIndex] = event.nativeEvent.layout;
+    const nbChildren = this.props.tabs.length;
+    if (this.tabLayouts.length === nbChildren) this.forceUpdate();
+  };
+
   _renderIndicator() {
     const { indicatorStyle, tabs, indicatorStickTop } = this.props;
-
     if (this.tabLayouts.length === 0) return;
-
     const nbChildren = tabs.length;
-
     const offsetValue = this.indicatorAnim.interpolate({
       inputRange: generateRange(nbChildren),
       outputRange: this.tabLayouts.map(layout => layout.x),
     });
-
     const widthValue = this.indicatorAnim.interpolate({
       inputRange: generateRange(nbChildren),
       outputRange: this.tabLayouts.map(layout => layout.width),
     });
-
     const posStyle = {};
     if (indicatorStickTop) posStyle.top = 0;
     else posStyle.bottom = 0;
-
     return (
       <Animated.View
         pointerEvents="none"
@@ -156,32 +164,15 @@ export default class TabBar extends Component {
     );
   }
 
-  _handleNavLayout = (event: Object) => {
-    this.navLayout = event.nativeEvent.layout;
-  };
-
-  _handleNavScroll = (event: Object) => {
-    this.scrollAnim.setValue(event.nativeEvent.contentOffset.x);
-  };
-
-  _handleTabLayout(event: Object, tabIndex: number) {
-    this.tabLayouts[tabIndex] = event.nativeEvent.layout;
-    const nbChildren = this.props.tabs.length;
-    if (this.tabLayouts.length === nbChildren) this.forceUpdate();
-  }
-
   _renderTabs() {
     const { tabs, tabStyle, scrollable, pressOpacity, activeColor } = this.props;
     const tabStyles = [];
-    if (!scrollable) {
+    if (!scrollable)
       tabStyles.push(styles.equalWidthTab);
-    } else {
+    else
       tabStyles.push(styles.paddedTab);
-    }
     tabStyles.push(tabStyle);
-
     const nbChildren = tabs.length;
-
     return tabs.map((element, i) => {
       const uniformValues = generateUniformArray(nbChildren, activeColor ? 0 : 0.8);
       uniformValues[i] = 1;
@@ -206,7 +197,8 @@ export default class TabBar extends Component {
               <Animated.View style={{ opacity: activeColor ? mainOpacityValue : 0 }}>
                 {React.cloneElement(element, { color: activeColor, style: { color: activeColor } })}
               </Animated.View>
-              <Animated.View style={[StyleSheet.absoluteFill, { opacity: activeColor ? secondOpacityValue : mainOpacityValue }]}>
+              <Animated.View
+                style={[StyleSheet.absoluteFill, { opacity: activeColor ? secondOpacityValue : mainOpacityValue }]}>
                 {element}
               </Animated.View>
             </View>
@@ -220,7 +212,9 @@ export default class TabBar extends Component {
     const { height, style, renderIndicator } = this.props;
     return (
       <View
-        ref={c => this.navView = c}
+        ref={(c) => {
+          this.navView = c;
+        }}
         onLayout={this._handleNavLayout}
         style={[styles.nav, { height }, style]}>
         {this._renderTabs()}
@@ -233,7 +227,9 @@ export default class TabBar extends Component {
     const { height, style, renderIndicator } = this.props;
     return (
       <ScrollView
-        ref={c => this.navView = c}
+        ref={(c) => {
+          this.navView = c;
+        }}
         onLayout={this._handleNavLayout}
         showsHorizontalScrollIndicator={false}
         onScroll={this._handleNavScroll}
@@ -247,9 +243,8 @@ export default class TabBar extends Component {
 
   render() {
     const { scrollable } = this.props;
-    if (scrollable) {
+    if (scrollable)
       return this._renderScrollableNav();
-    }
     return this._renderStandardNav();
   }
 }
