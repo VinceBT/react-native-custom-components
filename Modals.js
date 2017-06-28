@@ -9,17 +9,18 @@ global.modals = null;
 
 let lockModals = false;
 
+const DEFAULT_DURATION = 200;
+
 class ModalWrapper extends Component {
 
   static defaultProps = {
-    duration: 200,
+    transitionDuration: DEFAULT_DURATION,
     defaultStyle: {
       position: 'absolute',
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'white',
     },
     hiddenStyle: {
       transform: [{ translateY: 200 }],
@@ -30,7 +31,7 @@ class ModalWrapper extends Component {
   };
 
   static propTypes = {
-    duration: PropTypes.number,
+    transitionDuration: PropTypes.number,
     defaultStyle: styleProptype.supportingArrays,
     hiddenStyle: styleProptype.supportingArrays,
     shownStyle: styleProptype.supportingArrays,
@@ -47,7 +48,7 @@ class ModalWrapper extends Component {
 
   componentWillAppear(callback) {
     this.setState({ isVisible: true });
-    setTimeout(callback, this.props.duration);
+    setTimeout(callback, this.props.transitionDuration);
   }
 
   componentDidAppear() {
@@ -55,7 +56,7 @@ class ModalWrapper extends Component {
 
   componentWillEnter(callback) {
     this.setState({ isVisible: true });
-    setTimeout(callback, this.props.duration);
+    setTimeout(callback, this.props.transitionDuration);
   }
 
   componentDidEnter() {
@@ -63,7 +64,7 @@ class ModalWrapper extends Component {
 
   componentWillLeave(callback) {
     this.setState({ isVisible: false });
-    setTimeout(callback, this.props.duration);
+    setTimeout(callback, this.props.transitionDuration);
   }
 
   componentDidLeave() {
@@ -71,7 +72,7 @@ class ModalWrapper extends Component {
 
   render() {
     const {
-      duration,
+      transitionDuration,
       defaultStyle,
       hiddenStyle,
       shownStyle,
@@ -81,7 +82,7 @@ class ModalWrapper extends Component {
       <Animatable.View
         pointerEvents="box-none"
         transition={animatedStyles}
-        duration={duration}
+        duration={transitionDuration}
         style={[defaultStyle, this.state.isVisible ? shownStyle : hiddenStyle]}>
         {this.props.children}
       </Animatable.View>
@@ -115,13 +116,13 @@ export default class Modals extends Component {
    * Push a modal onto the stack
    * @public
    */
-  open = (modalComponent, { keyPrefix = 'modal', duration, lock = true, ...otherProps }) => {
+  open = (modalComponent, options = {}) => {
     if (lockModals) return;
     const modals = this.state.modals.slice(0);
+    const { keyPrefix = 'modal', lock = true, ...otherProps } = options;
     modals.push(
       <ModalWrapper
-        key={`${keyPrefix}-${Math.floor(Math.random() * 1000000)}`}
-        duration={duration}
+        key={`${keyPrefix || 'modal'}-${Math.floor(Math.random() * 1000000)}`}
         {...otherProps}>
         {modalComponent}
       </ModalWrapper>
@@ -131,7 +132,7 @@ export default class Modals extends Component {
       lockModals = true;
       setTimeout(() => {
         lockModals = false;
-      }, duration);
+      }, options.transitionDuration || DEFAULT_DURATION);
     }
   };
 
@@ -143,6 +144,14 @@ export default class Modals extends Component {
     const modals = this.state.modals.slice(0);
     modals.pop();
     this.setState({ modals });
+  };
+
+  /**
+   * Pops all modals
+   * @public
+   */
+  popAll = () => {
+    this.setState({ modals: [] });
   };
 
   /**
