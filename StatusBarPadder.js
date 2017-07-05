@@ -1,5 +1,6 @@
 import React from 'react';
-import { Animated, Platform } from 'react-native';
+import { View, Platform } from 'react-native';
+import { PropTypes } from 'prop-types';
 
 let initialHeightValue = 0;
 if (Platform.OS === 'ios') {
@@ -11,14 +12,17 @@ if (Platform.OS === 'ios') {
     initialHeightValue = 25;
 }
 
-const animValue = new Animated.Value(initialHeightValue);
-
-const StatusBarPadder = ({ ...props }) => {
+const StatusBarPadder = ({ style, ...props }) => {
   if (Platform.OS === 'web')
     return null;
   return (
-    <Animated.View style={{ height: animValue }} />
+    <View style={[style, { height: initialHeightValue }]} {...props} />
   );
 };
 
+StatusBarPadder.propTypes = {
+  style: PropTypes.any,
+};
+
+export const statusBarHeight = initialHeightValue;
 export default StatusBarPadder;
