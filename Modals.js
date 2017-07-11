@@ -81,6 +81,7 @@ class ModalWrapper extends Component {
     return (
       <Animatable.View
         pointerEvents="box-none"
+        useNativeDriver
         transition={animatedStyles}
         duration={transitionDuration}
         style={[defaultStyle, this.state.isVisible ? shownStyle : hiddenStyle]}>
