@@ -1,9 +1,9 @@
+/* eslint-disable react/forbid-prop-types */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import TransitionGroup from 'react-transition-group/TransitionGroup';
 import * as Animatable from 'react-native-animatable';
-import styleProptype from 'react-style-proptype';
 
 global.modals = null;
 
@@ -32,9 +32,9 @@ class ModalWrapper extends Component {
 
   static propTypes = {
     transitionDuration: PropTypes.number,
-    defaultStyle: styleProptype.supportingArrays,
-    hiddenStyle: styleProptype.supportingArrays,
-    shownStyle: styleProptype.supportingArrays,
+    defaultStyle: PropTypes.any,
+    hiddenStyle: PropTypes.any,
+    shownStyle: PropTypes.any,
     animatedStyles: PropTypes.arrayOf(PropTypes.string),
     children: PropTypes.node.isRequired,
   };
