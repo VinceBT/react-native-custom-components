@@ -27,7 +27,7 @@ class ModalWrapper extends Component {
       opacity: 0,
     },
     shownStyle: {},
-    animatedStyles: ['translateY', 'opacity'],
+    animatedStyles: ['scale', 'translateX', 'translateY', 'opacity'],
   };
 
   static propTypes = {
