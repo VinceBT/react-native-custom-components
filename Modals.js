@@ -5,8 +5,6 @@ import { BackHandler, StyleSheet, View } from 'react-native';
 import TransitionGroup from 'react-transition-group/TransitionGroup';
 import * as Animatable from 'react-native-animatable';
 
-global.modals = null;
-
 let lockModals = false;
 
 const DEFAULT_DURATION = 200;
@@ -97,19 +95,15 @@ export default class Modals extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      modals: [],
+      currentModals: [],
     };
   }
 
   componentDidMount() {
-    // Stock current instance in global
-    global.modals = this;
     BackHandler.addEventListener('hardwareBackPress', this._handlePopRequest);
   }
 
   componentWillUnmount() {
-    // Clear global variable
-    global.modals = null;
     BackHandler.removeEventListener('hardwareBackPress', this._handlePopRequest);
   }
 
@@ -118,23 +112,35 @@ export default class Modals extends Component {
    * @public
    */
   open = (modalComponent, options = {}) => {
-    if (lockModals) return;
-    const modals = this.state.modals.slice(0);
-    const { keyPrefix = 'modal', lock = true, ...otherProps } = options;
-    modals.push(
-      <ModalWrapper
-        key={`${keyPrefix || 'modal'}-${Math.floor(Math.random() * 1000000)}`}
-        {...otherProps}>
-        {modalComponent}
-      </ModalWrapper>
-    );
-    this.setState({ modals });
-    if (lock) {
-      lockModals = true;
-      setTimeout(() => {
-        lockModals = false;
-      }, options.transitionDuration || DEFAULT_DURATION);
-    }
+    return new Promise((resolve, reject) => {
+      if (lockModals) {
+        reject();
+      } else {
+        const currentModals = this.state.currentModals.slice(0);
+        const { keyPrefix = 'modal', lock = true, ...otherProps } = options;
+        const animDuration = options.transitionDuration || DEFAULT_DURATION;
+        currentModals.push({
+          animDuration,
+          element: (
+            <ModalWrapper
+              key={`${keyPrefix || 'modal'}-${Math.floor(Math.random() * 1000000)}`}
+              {...otherProps}>
+              {modalComponent}
+            </ModalWrapper>
+          ),
+        });
+        this.setState({ currentModals });
+        if (lock) {
+          lockModals = true;
+          setTimeout(() => {
+            lockModals = false;
+            resolve();
+          }, animDuration);
+        } else {
+          resolve();
+        }
+      }
+    });
   };
 
   /**
@@ -142,9 +148,17 @@ export default class Modals extends Component {
    * @public
    */
   pop = () => {
-    const modals = this.state.modals.slice(0);
-    modals.pop();
-    this.setState({ modals });
+    return new Promise((resolve, reject) => {
+      if (!this.state.currentModals) {
+        reject();
+      } else {
+        const currentModals = this.state.currentModals.slice(0);
+        currentModals.pop();
+        this.setState({ currentModals }, () => {
+          resolve();
+        });
+      }
+    });
   };
 
   /**
@@ -152,7 +166,7 @@ export default class Modals extends Component {
    * @public
    */
   popAll = () => {
-    this.setState({ modals: [] });
+    this.setState({ currentModals: [] });
   };
 
   /**
@@ -160,7 +174,7 @@ export default class Modals extends Component {
    * @private
    */
   _handlePopRequest = () => {
-    if (this.state.modals.length !== 0) {
+    if (this.state.currentModals.length !== 0) {
       this.pop();
       return true;
     }
@@ -173,7 +187,7 @@ export default class Modals extends Component {
         component={View}
         pointerEvents="box-none"
         style={StyleSheet.absoluteFill}>
-        {this.state.modals}
+        {this.state.currentModals.map(modal => modal.element)}
       </TransitionGroup>
     );
   }
