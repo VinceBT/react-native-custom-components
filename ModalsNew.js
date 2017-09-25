@@ -111,7 +111,8 @@ class ModalWrapper extends Component {
 export default class ModalsNew extends Component {
 
   static propTypes = {
-    onBackPress: PropTypes.func,
+    setBackHandler: PropTypes.func,
+    unsetBackHandler: PropTypes.func,
   };
 
   state = {
@@ -120,12 +121,14 @@ export default class ModalsNew extends Component {
 
   componentDidMount() {
     currentInstance = this;
-    this.props.onBackPress(this._handlePopRequest);
+    if (this.props.setBackHandler)
+      this.props.setBackHandler(this._handlePopRequest);
   }
 
   componentWillUnmount() {
     currentInstance = null;
-    this.props.onBackPress(this._handlePopRequest);
+    if (this.props.unsetBackHandler)
+      this.props.unsetBackHandler(this._handlePopRequest);
   }
 
   show = (component, lock = true) => {
@@ -138,9 +141,9 @@ export default class ModalsNew extends Component {
         const currentModals = this.state.currentModals.slice(0);
         const modalOptions = {
           defaultStyle: {},
-          inStyle: { opacity: 0 },
+          inStyle: { opacity: 0, transform: [{ translateY: 200 }] },
           activeStyle: {},
-          outStyle: { opacity: 0 },
+          outStyle: { opacity: 0, transform: [{ translateY: 5 }] },
           inEasing: 'ease',
           outEasing: 'ease',
           inDuration: 200,
