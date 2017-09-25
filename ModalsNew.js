@@ -9,16 +9,6 @@ let currentInstance: ?Modal = null;
 
 let lockModals = false;
 
-const styles = StyleSheet.create({
-  modalWrapperDefault: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-});
-
 const MOUNT_STATUS = {
   MOUNTING: 0,
   MOUNTED: 1,
@@ -94,7 +84,7 @@ class ModalWrapper extends Component {
             ? this.props.options.inEasing
             : this.props.options.outEasing
         }
-        style={[styles.modalWrapperDefault, {
+        style={[StyleSheet.absoluteFill, {
           ...this.props.options.defaultStyle,
           ...(this.state.mountStatus === MOUNT_STATUS.MOUNTING
               ? this.props.options.inStyle
