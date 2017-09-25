@@ -152,7 +152,7 @@ export default class ModalsNew extends Component {
               }
             }}
             onDisappear={() => {
-              console.log('yo');
+              console.log('MODAL POPPED');
             }}>{component}</ModalWrapper>
         );
         this.setState({ currentModals }, () => {
