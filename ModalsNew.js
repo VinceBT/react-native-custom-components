@@ -111,17 +111,15 @@ export default class ModalsNew extends Component {
 
   componentDidMount() {
     currentInstance = this;
-    if (this.props.setBackHandler)
-      this.props.setBackHandler(this._handlePopRequest);
+    if (this.props.setBackHandler) this.props.setBackHandler(this._handlePopRequest);
   }
 
   componentWillUnmount() {
     currentInstance = null;
-    if (this.props.unsetBackHandler)
-      this.props.unsetBackHandler(this._handlePopRequest);
+    if (this.props.unsetBackHandler) this.props.unsetBackHandler(this._handlePopRequest);
   }
 
-  show = (component, lock = true) => {
+  push = (component, lock = true) => {
     return new Promise((resolve, reject) => {
       if (!component) {
         reject('No component found');
@@ -146,13 +144,18 @@ export default class ModalsNew extends Component {
             key={currentModals.length}
             options={modalOptions}
             onAppear={() => {
+              console.log(`[UI] MODAL PUSHED -> ${component.type.name}`);
               if (lock) {
                 lockModals = false;
                 resolve();
               }
             }}
             onDisappear={() => {
-              console.log('MODAL POPPED');
+              console.log(`[UI] MODAL POPPED -> ${component.type.name}`);
+              if (this._popHandler) {
+                this._popHandler();
+                this._popHandler = null;
+              }
             }}>{component}</ModalWrapper>
         );
         this.setState({ currentModals }, () => {
@@ -171,12 +174,11 @@ export default class ModalsNew extends Component {
         if (currentModals.length === 0) resolve();
         if (lock) lockModals = true;
         const modalComponent = currentModals.pop();
-        this.setState({ currentModals }, () => {
-          setTimeout(() => {
-            if (lock) lockModals = false;
-            resolve();
-          }, modalComponent.props.options.outDuration);
-        });
+        this._popHandler = () => {
+          if (lock) lockModals = false;
+          resolve();
+        };
+        this.setState({ currentModals });
       }
     });
   };
@@ -200,6 +202,8 @@ export default class ModalsNew extends Component {
     }
     return false;
   };
+
+  _popHandler: ?Function = null;
 
   render() {
     return (
