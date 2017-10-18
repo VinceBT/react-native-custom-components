@@ -122,9 +122,9 @@ export default class ModalsNew extends Component {
   push = (component, lock = true) => {
     return new Promise((resolve, reject) => {
       if (!component) {
-        reject('No component found');
+        reject('No component passed as a parameter');
       } else if (lockModals) {
-        reject('Cannot show a modal while another one in animating in');
+        reject(`Cannot push modal ${component.type.name} when the modal manager is locked`);
       } else {
         const currentModals = this.state.currentModals.slice(0);
         const modalOptions = {
