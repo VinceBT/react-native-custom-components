@@ -119,7 +119,7 @@ export default class ModalsNew extends Component {
     if (this.props.unsetBackHandler) this.props.unsetBackHandler(this._handlePopRequest);
   }
 
-  push = (component, lock = true) => {
+  push = (component, lock = false) => {
     return new Promise((resolve, reject) => {
       if (!component) {
         reject('No component passed as a parameter');
@@ -165,7 +165,7 @@ export default class ModalsNew extends Component {
     });
   };
 
-  pop = (lock = true) => {
+  pop = (lock = false) => {
     return new Promise((resolve, reject) => {
       if (lockModals) {
         reject('Cannot pop the current modal while another is animating');
